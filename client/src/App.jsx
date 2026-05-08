@@ -1,45 +1,44 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Search from './pages/Search';
-import CompanionDetail from './pages/CompanionDetail';
-import CreateListing from './pages/CreateListing';
-import MyListings from './pages/MyListings';
-import MyBookings from './pages/MyBookings';
+import { ProfileProvider, useProfile } from './context/ProfileContext';
+import { TourProvider } from './context/TourContext';
+import SplashScreen from './screens/SplashScreen';
+import ProfileSetupScreen from './screens/ProfileSetupScreen';
+import HomeScreen from './screens/HomeScreen';
+import TourDetailScreen from './screens/TourDetailScreen';
+import ActiveTourScreen from './screens/ActiveTourScreen';
+import TourCompleteScreen from './screens/TourCompleteScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
-function ProtectedRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
+function ProfileGate({ children }) {
+  const { profile, loading } = useProfile();
+  if (loading) return null;
+  if (!profile) return <Navigate to="/setup" replace />;
+  return children;
 }
 
 function AppRoutes() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/companion/:listingId" element={<CompanionDetail />} />
-        <Route path="/create-listing" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
-        <Route path="/my-listings" element={<ProtectedRoute><MyListings /></ProtectedRoute>} />
-        <Route path="/my-bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<SplashScreen />} />
+      <Route path="/setup" element={<ProfileSetupScreen />} />
+      <Route path="/home" element={<ProfileGate><HomeScreen /></ProfileGate>} />
+      <Route path="/tour/:tourId" element={<ProfileGate><TourDetailScreen /></ProfileGate>} />
+      <Route path="/active" element={<ProfileGate><ActiveTourScreen /></ProfileGate>} />
+      <Route path="/complete" element={<ProfileGate><TourCompleteScreen /></ProfileGate>} />
+      <Route path="/profile" element={<ProfileGate><ProfileScreen /></ProfileGate>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <ProfileProvider>
+        <TourProvider>
+          <AppRoutes />
+        </TourProvider>
+      </ProfileProvider>
     </BrowserRouter>
   );
 }

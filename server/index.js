@@ -18,6 +18,7 @@ app.use('/api/flights', require('./routes/flights'));
 app.use('/api/companions', require('./routes/companions'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/ratings', require('./routes/ratings'));
+app.use('/api/tours', require('./routes/tours'));
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 
